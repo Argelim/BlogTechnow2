@@ -170,6 +170,7 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
     protected void onProgressUpdate(Integer... values) {
         if(recyclerView.getAdapter()!=null){
             recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+            recyclerView.getAdapter().notifyDataSetChanged();
         }
 
     }
@@ -198,6 +199,7 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
         if(aBoolean){
             if(recyclerView.getAdapter()!=null){
                 recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+                recyclerView.getAdapter().notifyDataSetChanged();
             }
         }
     }

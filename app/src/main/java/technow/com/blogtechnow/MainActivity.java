@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity
                 if (layoutManager.findFirstVisibleItemPosition() == contador) {
                     contador += 10;
                     contadorCurrentPage++;
-                    //new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
+                    new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
                 }
             }
         });
@@ -131,10 +131,16 @@ public class MainActivity extends AppCompatActivity
             recycler.getAdapter().notifyDataSetChanged();
             new Categorias(getApplicationContext(),items,recycler,"accesibilidad").execute();
         } else if (id == R.id.nav_gallery) {
+            items.clear();
+            recycler.getAdapter().notifyDataSetChanged();
             new Categorias(getApplicationContext(),items,recycler,"almacenamiento").execute();
         } else if (id == R.id.nav_slideshow) {
+            items.clear();
+            recycler.getAdapter().notifyDataSetChanged();
             new Categorias(getApplicationContext(),items,recycler,"app").execute();
         } else if (id == R.id.nav_manage) {
+            items.clear();
+            recycler.getAdapter().notifyDataSetChanged();
             new Categorias(getApplicationContext(),items,recycler,"apple").execute();
         }
 
