@@ -31,6 +31,9 @@ public class MainActivity extends AppCompatActivity
     private static ArrayList<Noticias> items;
     private int contador=5;
     private int contadorCurrentPage=1;
+    private Adaptador adaptador;
+    private Adaptador adaptador2;
+    private ArrayList<Noticias> not;
 
     public static ArrayList<Noticias> getItems() {
         return items;
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         items = new ArrayList<>();
+        not = new ArrayList<>();
 
         // Obtener el Recycler
         recycler = (RecyclerView) findViewById(R.id.reciclador);
@@ -62,7 +66,11 @@ public class MainActivity extends AppCompatActivity
         lManager = new LinearLayoutManager(this);
         recycler.setLayoutManager(lManager);
 
-        recycler.setAdapter(new Adaptador(items, recycler));
+        adaptador = new Adaptador(items,recycler);
+        recycler.setAdapter(adaptador);
+
+        new Paginacion(getApplicationContext(),items,recycler,String.valueOf(contadorCurrentPage)).execute();
+
 
         recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -71,16 +79,13 @@ public class MainActivity extends AppCompatActivity
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 Log.d(TAG, String.valueOf(layoutManager.findLastVisibleItemPosition()));
                 //position starts at 0
-                if (layoutManager.findFirstVisibleItemPosition()==contador) {
-                    contador+=10;
+                if (layoutManager.findFirstVisibleItemPosition() == contador) {
+                    contador += 10;
                     contadorCurrentPage++;
-                    new Paginacion(getApplicationContext(),items,recycler,String.valueOf(contadorCurrentPage)).execute();
+                    //new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
                 }
             }
         });
-
-        new Paginacion(getApplicationContext(),items,recycler,String.valueOf(contadorCurrentPage)).execute();
-
     }
 
     @Override
@@ -122,9 +127,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            ArrayList<Noticias> not = new ArrayList<>();
-            recycler.setAdapter(new Adaptador(not, recycler));
-            new Categorias(getApplicationContext(),not,recycler,"accesibilidad").execute();
+            items.clear();
+            recycler.getAdapter().notifyDataSetChanged();
+            new Categorias(getApplicationContext(),items,recycler,"accesibilidad").execute();
         } else if (id == R.id.nav_gallery) {
             new Categorias(getApplicationContext(),items,recycler,"almacenamiento").execute();
         } else if (id == R.id.nav_slideshow) {

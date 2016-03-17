@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
+import android.util.Log;
 
 
 import com.squareup.picasso.Picasso;
@@ -18,13 +19,9 @@ import java.net.URLConnection;
 public class obtenerImagen implements Html.ImageGetter {
 
     private int contador=0;
-    private Drawable drawable;
-    private URLConnection connection;
-    private Bitmap bitmap;
-    private BitmapFactory bitmapFactory;
-    private BitmapFactory.Options options;
     private Context context;
     private RequestCreator imagenCreator;
+    private String TAG ="IMG";
 
     public obtenerImagen(Context context) {
         this.context = context;
@@ -33,6 +30,7 @@ public class obtenerImagen implements Html.ImageGetter {
     @Override
     public Drawable getDrawable(String source) {
         if (contador==0){
+            Log.d(TAG,source);
             imagenCreator = Picasso.with(context).load(source);
             contador++;
         }
@@ -40,7 +38,12 @@ public class obtenerImagen implements Html.ImageGetter {
     }
 
     public RequestCreator getImagenCreator() {
-        return imagenCreator;
+        if(imagenCreator!=null){
+            return imagenCreator;
+        }else{
+            return Picasso.with(context).load("http://www.cochesdeocasion.com/images/sin_imagen_grande.jpg");
+        }
+
     }
 
     public void setImagenCreator(RequestCreator imagenCreator) {
