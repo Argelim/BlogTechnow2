@@ -1,6 +1,5 @@
 package comunicacion;
 
-
 import android.content.Context;;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
@@ -169,7 +168,11 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
 
     @Override
     protected void onProgressUpdate(Integer... values) {
-        recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+        if(recyclerView.getAdapter()!=null){
+            recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+            recyclerView.getAdapter().notifyDataSetChanged();
+        }
+
     }
 
     public String leerObjeto(JsonReader jsonReader){
@@ -194,7 +197,10 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         if(aBoolean){
-            recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+            if(recyclerView.getAdapter()!=null){
+                recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
         }
     }
 
