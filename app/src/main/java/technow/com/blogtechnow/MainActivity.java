@@ -1,12 +1,9 @@
 package technow.com.blogtechnow;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,10 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import java.util.ArrayList;
-import java.util.List;
-
 import comunicacion.Categorias;
 import comunicacion.Paginacion;
 
@@ -32,8 +26,8 @@ public class MainActivity extends AppCompatActivity
     private int contador=5;
     private int contadorCurrentPage=1;
     private Adaptador adaptador;
-    private Adaptador adaptador2;
-    private ArrayList<Noticias> not;
+    private Object [] objetos;
+    private String categoria;
 
     public static ArrayList<Noticias> getItems() {
         return items;
@@ -56,7 +50,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         items = new ArrayList<>();
-        not = new ArrayList<>();
+        objetos = new Object[1];
 
         // Obtener el Recycler
         recycler = (RecyclerView) findViewById(R.id.reciclador);
@@ -68,9 +62,8 @@ public class MainActivity extends AppCompatActivity
 
         adaptador = new Adaptador(items,recycler);
         recycler.setAdapter(adaptador);
-
-        new Paginacion(getApplicationContext(),items,recycler,String.valueOf(contadorCurrentPage)).execute();
-
+        //almacenamos el objeto en la primera posicion para el control de instancias
+        objetos[0]=new Paginacion(getApplicationContext(),items,recycler,String.valueOf(contadorCurrentPage)).execute();
 
         recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -80,9 +73,15 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, String.valueOf(layoutManager.findLastVisibleItemPosition()));
                 //position starts at 0
                 if (layoutManager.findFirstVisibleItemPosition() == contador) {
-                    contador += 10;
-                    contadorCurrentPage++;
-                    new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
+                    if(objetos[0] instanceof Paginacion){
+                        contador += 10;
+                        contadorCurrentPage++;
+                        new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
+                    }else{
+                        contador += 10;
+                        contadorCurrentPage++;
+                        new Categorias(getApplicationContext(),items,recycler,categoria,String.valueOf(contadorCurrentPage)).execute();
+                    }
                 }
             }
         });
@@ -125,23 +124,28 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        contador=5;
+        contadorCurrentPage=1;
         if (id == R.id.nav_camera) {
             items.clear();
             recycler.getAdapter().notifyDataSetChanged();
-            new Categorias(getApplicationContext(),items,recycler,"accesibilidad").execute();
+            categoria ="accesibilidad";
+            objetos[0]=new Categorias(getApplicationContext(),items,recycler,"accesibilidad",String.valueOf(contadorCurrentPage)).execute();
         } else if (id == R.id.nav_gallery) {
             items.clear();
             recycler.getAdapter().notifyDataSetChanged();
-            new Categorias(getApplicationContext(),items,recycler,"almacenamiento").execute();
+            categoria ="almacenamiento";
+            objetos[0]=new Categorias(getApplicationContext(),items,recycler,"almacenamiento",String.valueOf(contadorCurrentPage)).execute();
         } else if (id == R.id.nav_slideshow) {
             items.clear();
             recycler.getAdapter().notifyDataSetChanged();
-            new Categorias(getApplicationContext(),items,recycler,"app").execute();
+            categoria ="app";
+            objetos[0]=new Categorias(getApplicationContext(),items,recycler,"app",String.valueOf(contadorCurrentPage)).execute();
         } else if (id == R.id.nav_manage) {
             items.clear();
+            categoria ="apple";
             recycler.getAdapter().notifyDataSetChanged();
-            new Categorias(getApplicationContext(),items,recycler,"apple").execute();
+            objetos[0]=new Categorias(getApplicationContext(),items,recycler,"apple",String.valueOf(contadorCurrentPage)).execute();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
