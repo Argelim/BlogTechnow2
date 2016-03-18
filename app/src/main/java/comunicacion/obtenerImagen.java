@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
+import android.util.Log;
 
 
 import com.squareup.picasso.Picasso;
@@ -12,19 +13,17 @@ import com.squareup.picasso.RequestCreator;
 
 import java.net.URLConnection;
 
+import technow.com.blogtechnow.R;
+
 /**
  * Created by Tautvydas on 16/03/2016.
  */
 public class obtenerImagen implements Html.ImageGetter {
 
     private int contador=0;
-    private Drawable drawable;
-    private URLConnection connection;
-    private Bitmap bitmap;
-    private BitmapFactory bitmapFactory;
-    private BitmapFactory.Options options;
     private Context context;
     private RequestCreator imagenCreator;
+    private String TAG ="IMG";
 
     public obtenerImagen(Context context) {
         this.context = context;
@@ -33,6 +32,7 @@ public class obtenerImagen implements Html.ImageGetter {
     @Override
     public Drawable getDrawable(String source) {
         if (contador==0){
+            Log.d(TAG,source);
             imagenCreator = Picasso.with(context).load(source);
             contador++;
         }
@@ -40,7 +40,12 @@ public class obtenerImagen implements Html.ImageGetter {
     }
 
     public RequestCreator getImagenCreator() {
-        return imagenCreator;
+        if(imagenCreator!=null){
+            return imagenCreator;
+        }else{
+            return Picasso.with(context).load(R.drawable.noimagen);
+        }
+
     }
 
     public void setImagenCreator(RequestCreator imagenCreator) {

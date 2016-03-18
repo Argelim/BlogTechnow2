@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.JsonReader;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,11 +28,9 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import technow.com.blogtechnow.Adaptador;
 import technow.com.blogtechnow.Noticias;
 import technow.com.blogtechnow.R;
 
-;
 
 /**
  * Created by Tautvydas on 16/03/2016.
@@ -53,12 +52,15 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
     private Spanned spanned;
     private obtenerImagen obtenerImagen;
     private String categoria;
+    private String page;
+    private String contenido;
 
-    public Categorias(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String categoria) {
+    public Categorias(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String categoria,String page) {
         this.context=context;
         this.noticias=noticias;
         this.recyclerView=recyclerView;
         this.categoria=categoria;
+        this.page=page;
     }
 
     @Override
@@ -89,7 +91,7 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
             //instanciamos el contexto SSL
             sslContext.init(null,trustManagerFactory.getTrustManagers(),null);
             //obtenemos la URL de la página con el certificado
-            url = new URL("https://www.technow.es/blog/wp-json/wp/v2/posts?filter[category_name]="+categoria);
+            url = new URL("https://www.technow.es/blog/wp-json/wp/v2/posts?filter[category_name]="+categoria+"&page="+page);
             //realizamos la comunicacion
             connection = (HttpsURLConnection) url.openConnection();
             //le pasamos el contexto SSL para que pueda comprobar el certificado
@@ -148,14 +150,16 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
                             break;
                         case "content":
                             obtenerImagen =new obtenerImagen(context);
-                            spanned = Html.fromHtml(leerObjeto(jsonReader),obtenerImagen,null);
+                            contenido = leerObjeto(jsonReader);
+                            spanned = Html.fromHtml(contenido,obtenerImagen,null);
                             break;
                         default:
                             jsonReader.skipValue();
                             break;
                     }
                 }
-                noticias.add(new Noticias(id, titulo, spanned, obtenerImagen.getImagenCreator()));
+                noticias.add(new Noticias(id, titulo,contenido, obtenerImagen.getImagenCreator()));
+                Log.d(TAG,String.valueOf(noticias.size()));
                 publishProgress();
                 jsonReader.endObject();
             }
@@ -169,7 +173,10 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
 
     @Override
     protected void onProgressUpdate(Integer... values) {
-        recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+        if(recyclerView.getAdapter()!=null){
+            recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+            recyclerView.getAdapter().notifyDataSetChanged();
+        }
     }
 
     public String leerObjeto(JsonReader jsonReader){
@@ -194,7 +201,10 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         if(aBoolean){
-            recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+            if(recyclerView.getAdapter()!=null){
+                recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
         }
     }
 

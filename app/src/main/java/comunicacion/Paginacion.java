@@ -1,6 +1,5 @@
 package comunicacion;
 
-
 import android.content.Context;;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
@@ -51,7 +50,7 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
     private RecyclerView recyclerView;
     private Spanned spanned;
     private obtenerImagen obtenerImagen;
-    private Adaptador adaptador;
+    private String contenido;
     private String pagina;
 
     public Paginacion(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String pagina) {
@@ -148,14 +147,15 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
                             break;
                         case "content":
                             obtenerImagen =new obtenerImagen(context);
-                            spanned = Html.fromHtml(leerObjeto(jsonReader),obtenerImagen,null);
+                            contenido = leerObjeto(jsonReader);
+                            spanned = Html.fromHtml(contenido,obtenerImagen,null);
                             break;
                         default:
                             jsonReader.skipValue();
                             break;
                     }
                 }
-                noticias.add(new Noticias(id, titulo, spanned, obtenerImagen.getImagenCreator()));
+                noticias.add(new Noticias(id, titulo,contenido, obtenerImagen.getImagenCreator()));
                 publishProgress();
                 jsonReader.endObject();
             }
@@ -169,7 +169,11 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
 
     @Override
     protected void onProgressUpdate(Integer... values) {
-        recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+        if(recyclerView.getAdapter()!=null){
+            recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+            recyclerView.getAdapter().notifyDataSetChanged();
+        }
+
     }
 
     public String leerObjeto(JsonReader jsonReader){
@@ -194,7 +198,10 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         if(aBoolean){
-            recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+            if(recyclerView.getAdapter()!=null){
+                recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
         }
     }
 
