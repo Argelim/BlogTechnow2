@@ -1,17 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:title="Categorias">
+        <menu>
+            <item
+                android:id="@+id/accesibilidad"
+                android:title="Accesibilidad" />
+            <item
+                android:id="@+id/almacenamiento"
+                android:title="Almacenamiento" />
+            <item
+                android:id="@+id/app"
+                android:title="App" />
+            <item
+                android:id="@+id/apple"
+                android:title="Apple" />
+            <item
+                android:id="@+id/casaIntel"
+                android:title="Casas Inteligentes" />
+            <item
+                android:id="@+id/desarrollo"
+                android:title="Desarrollo" />
+            <item
+                android:id="@+id/domotica"
+                android:title="Domótica" />
+            <item
+                android:id="@+id/iot"
+                android:title="El internet de las cosas" />
+            <item
+                android:id="@+id/events"
+                android:title="Eventos" />
+            <item
+                android:id="@+id/facebook"
+                android:title="Facebook" />
+            <item
+                android:id="@+id/fotyvideo"
+                android:title="Fotografía y Video" />
+            <item
+                android:id="@+id/google"
+                android:title="Google" />
+            <item
+                android:id="@+id/hogar_accesible"
+                android:title="Hogar Accesible" />
+            <item
+                android:id="@+id/ios"
+                android:title="IOS 9" />
+            <item
+                android:id="@+id/ipad"
+                android:title="Ipad" />
+            <item
+                android:id="@+id/iphone"
+                android:title="iPhone" />
+            <item
+                android:id="@+id/juegos"
+                android:title="Juegos" />
+            <item
+                android:id="@+id/lector_pant"
+                android:title="Lectores de pantalla" />
+            <item
+                android:id="@+id/linux"
+                android:title="Linux" />
+            <item
+                android:id="@+id/macos"
+                android:title="Mac OS X" />
+            <item
+                android:id="@+id/macbook"
+                android:title="MacBook" />
+            <item
+                android:id="@+id/macbookair"
+                android:title="MacBook Air" />
+            <item
+                android:id="@+id/microsoft"
+                android:title="Microsoft" />
+            <item
+                android:id="@+id/nvda"
+                android:title="NVDA" />
+            <item
+                android:id="@+id/capitan"
+                android:title="OS X El Capitan" />
+            <item
+                android:id="@+id/otherapp"
+                android:title="Otras Aplicaciones" />
+            <item
+                android:id="@+id/other"
+                android:title="otros" />
+            <item
+                android:id="@+id/appleProductos"
+                android:title="Productos Apple" />
+            <item
+                android:id="@+id/redes"
+                android:title="Redes e Internet" />
+            <item
+                android:id="@+id/redesSociales"
+                android:title="Redes sociales" />
+            <item
+                android:id="@+id/robotica"
+                android:title="Robótica" />
+            <item
+                android:id="@+id/rumores"
+                android:title="Rumores" />
+            <item
+                android:id="@+id/seguridad"
+                android:title="Seguridad" />
+            <item
+                android:id="@+id/software"
+                android:title="Software" />
+            <item
+                android:id="@+id/technowSocial"
+                android:title=" Technow Social" />
+            <item
+                android:id="@+id/technowcloud"
+                android:title="Technowcloud" />
+            <item
+                android:id="@+id/tecnologia"
+                android:title="Tecnología" />
+            <item
+                android:id="@+id/tendencias"
+                android:title="Tendencias" />
+            <item
+                android:id="@+id/tutoriales"
+                android:title="Tutoriales" />
+            <item
+                android:id="@+id/TWBlue"
+                android:title="TWBlue" />
+            <item
+                android:id="@+id/varios"
+                android:title="Varios" />
+            <item
+                android:id="@+id/windows"
+                android:title="Windows" />
+            <item
+                android:id="@+id/windows10"
+                android:title="Windows 10" />
+            <item
+                android:id="@+id/z_wave"
+                android:title="Z-WAVE" />
+        </menu>
+    </item>
+
     <item
-        android:id="@+id/nav_camera"
-        android:title="Accesibilidad" />
-    <item
-        android:id="@+id/nav_gallery"
-        android:title="Almacenamiento" />
-    <item
-        android:id="@+id/nav_slideshow"
-        android:title="App" />
-    <item
-        android:id="@+id/nav_manage"
-        android:title="Apple" />
+        android:id="@+id/inicio"
+        android:title="Ultimas noticias" />
 
 </menu>
+
