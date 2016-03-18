@@ -1,9 +1,11 @@
 package technow.com.blogtechnow;
 
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,7 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.AnimeViewHolder> i
     private ArrayList<Noticias> items;
     private RecyclerView recyclerView;
     private Bundle bundle;
+    private String TAG="NULL";
 
     @Override
     public void onClick(View v) {
@@ -54,7 +57,12 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.AnimeViewHolder> i
 
     @Override
     public int getItemCount() {
-        return items.size();
+        if(items!=null){
+            return items.size();
+        }else{
+            return 0;
+        }
+
     }
 
     @Override
@@ -68,9 +76,11 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.AnimeViewHolder> i
 
     @Override
     public void onBindViewHolder(AnimeViewHolder viewHolder, int i) {
-        //agregamos la imagen en el texto
-        items.get(i).getImagen().into(viewHolder.imagen);
-        viewHolder.nombre.setText(items.get(i).getTitulo());
+        if(i<items.size()){
+            //agregamos la imagen en el texto
+            Log.d(TAG,String.valueOf(items.size()));
+            items.get(i).getImagen().into(viewHolder.imagen);
+            viewHolder.nombre.setText(items.get(i).getTitulo());
+        }
     }
-
 }

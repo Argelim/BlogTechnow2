@@ -1,12 +1,9 @@
 package technow.com.blogtechnow;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,13 +12,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+<<<<<<< HEAD
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+=======
+>>>>>>> refs/remotes/origin/master
 import java.util.ArrayList;
-import java.util.List;
-
 import comunicacion.Categorias;
 import comunicacion.Paginacion;
 
@@ -35,7 +33,13 @@ public class MainActivity extends AppCompatActivity
     private static ArrayList<Noticias> items;
     private int contador=5;
     private int contadorCurrentPage=1;
+<<<<<<< HEAD
     private ListView categorias;
+=======
+    private Adaptador adaptador;
+    private Object [] objetos;
+    private String categoria;
+>>>>>>> refs/remotes/origin/master
 
     public static ArrayList<Noticias> getItems() {
         return items;
@@ -60,10 +64,14 @@ public class MainActivity extends AppCompatActivity
 //        m.add("cuatro");
 //        m.add("cosas");
         items = new ArrayList<>();
+<<<<<<< HEAD
 //        categorias = (ListView) findViewById(R.id.listview);
 //        categorias.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list, cuatrocosas));
 
 
+=======
+        objetos = new Object[1];
+>>>>>>> refs/remotes/origin/master
 
         // Obtener el Recycler
         recycler = (RecyclerView) findViewById(R.id.reciclador);
@@ -73,7 +81,10 @@ public class MainActivity extends AppCompatActivity
         lManager = new LinearLayoutManager(this);
         recycler.setLayoutManager(lManager);
 
-        recycler.setAdapter(new Adaptador(items, recycler));
+        adaptador = new Adaptador(items,recycler);
+        recycler.setAdapter(adaptador);
+        //almacenamos el objeto en la primera posicion para el control de instancias
+        objetos[0]=new Paginacion(getApplicationContext(),items,recycler,String.valueOf(contadorCurrentPage)).execute();
 
         recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -83,6 +94,7 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, String.valueOf(layoutManager.findLastVisibleItemPosition()));
                 //position starts at 0
                 if (layoutManager.findFirstVisibleItemPosition() == contador) {
+<<<<<<< HEAD
                     contador += 10;
                     contadorCurrentPage++;
                     new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
@@ -91,6 +103,20 @@ public class MainActivity extends AppCompatActivity
         });
 
         new Paginacion(getApplicationContext(),items,recycler,String.valueOf(contadorCurrentPage)).execute();
+=======
+                    if(objetos[0] instanceof Paginacion){
+                        contador += 10;
+                        contadorCurrentPage++;
+                        new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
+                    }else{
+                        contador += 10;
+                        contadorCurrentPage++;
+                        new Categorias(getApplicationContext(),items,recycler,categoria,String.valueOf(contadorCurrentPage)).execute();
+                    }
+                }
+            }
+        });
+>>>>>>> refs/remotes/origin/master
     }
 
     @Override
@@ -129,6 +155,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+<<<<<<< HEAD
 //        int id = item.getItemId();
 //
 //        if (id == R.id.accesibilidad) {
@@ -153,6 +180,33 @@ public class MainActivity extends AppCompatActivity
 //        }else{
 //            new Categorias(getApplicationContext(),items,recycler,item.getTitle().toString()).execute();
 //        }
+=======
+        int id = item.getItemId();
+        contador=5;
+        contadorCurrentPage=1;
+        if (id == R.id.nav_camera) {
+            items.clear();
+            recycler.getAdapter().notifyDataSetChanged();
+            categoria ="accesibilidad";
+            objetos[0]=new Categorias(getApplicationContext(),items,recycler,"accesibilidad",String.valueOf(contadorCurrentPage)).execute();
+        } else if (id == R.id.nav_gallery) {
+            items.clear();
+            recycler.getAdapter().notifyDataSetChanged();
+            categoria ="almacenamiento";
+            objetos[0]=new Categorias(getApplicationContext(),items,recycler,"almacenamiento",String.valueOf(contadorCurrentPage)).execute();
+        } else if (id == R.id.nav_slideshow) {
+            items.clear();
+            recycler.getAdapter().notifyDataSetChanged();
+            categoria ="app";
+            objetos[0]=new Categorias(getApplicationContext(),items,recycler,"app",String.valueOf(contadorCurrentPage)).execute();
+        } else if (id == R.id.nav_manage) {
+            items.clear();
+            categoria ="apple";
+            recycler.getAdapter().notifyDataSetChanged();
+            objetos[0]=new Categorias(getApplicationContext(),items,recycler,"apple",String.valueOf(contadorCurrentPage)).execute();
+        }
+
+>>>>>>> refs/remotes/origin/master
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
