@@ -15,6 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +30,12 @@ public class MainActivity extends AppCompatActivity
 
     private RecyclerView recycler;
     private RecyclerView.LayoutManager lManager;
+    private String[] cuatrocosas = {"Cuatro", "Cosas"};
     private String TAG = "LISTENER";
     private static ArrayList<Noticias> items;
     private int contador=5;
     private int contadorCurrentPage=1;
+    private ListView categorias;
 
     public static ArrayList<Noticias> getItems() {
         return items;
@@ -51,8 +56,14 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+//        Menu m = navigationView.getMenu();
+//        m.add("cuatro");
+//        m.add("cosas");
         items = new ArrayList<>();
+//        categorias = (ListView) findViewById(R.id.listview);
+//        categorias.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list, cuatrocosas));
+
+
 
         // Obtener el Recycler
         recycler = (RecyclerView) findViewById(R.id.reciclador);
@@ -71,16 +82,15 @@ public class MainActivity extends AppCompatActivity
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 Log.d(TAG, String.valueOf(layoutManager.findLastVisibleItemPosition()));
                 //position starts at 0
-                if (layoutManager.findFirstVisibleItemPosition()==contador) {
-                    contador+=10;
+                if (layoutManager.findFirstVisibleItemPosition() == contador) {
+                    contador += 10;
                     contadorCurrentPage++;
-                    new Paginacion(getApplicationContext(),items,recycler,String.valueOf(contadorCurrentPage)).execute();
+                    new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
                 }
             }
         });
 
         new Paginacion(getApplicationContext(),items,recycler,String.valueOf(contadorCurrentPage)).execute();
-
     }
 
     @Override
@@ -119,22 +129,33 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            ArrayList<Noticias> not = new ArrayList<>();
-            recycler.setAdapter(new Adaptador(not, recycler));
-            new Categorias(getApplicationContext(),not,recycler,"accesibilidad").execute();
-        } else if (id == R.id.nav_gallery) {
-            new Categorias(getApplicationContext(),items,recycler,"almacenamiento").execute();
-        } else if (id == R.id.nav_slideshow) {
-            new Categorias(getApplicationContext(),items,recycler,"app").execute();
-        } else if (id == R.id.nav_manage) {
-            new Categorias(getApplicationContext(),items,recycler,"apple").execute();
-        }
-
+//        int id = item.getItemId();
+//
+//        if (id == R.id.accesibilidad) {
+//            ArrayList<Noticias> not = new ArrayList<>();
+//            recycler.setAdapter(new Adaptador(not, recycler));
+//            new Categorias(getApplicationContext(),not,recycler,item.getTitle().toString()).execute();
+//        } else if (id == R.id.almacenamiento) {
+//            new Categorias(getApplicationContext(),items,recycler,"almacenamiento").execute();
+//        } else if (id == R.id.app) {
+//            new Categorias(getApplicationContext(),items,recycler,"app").execute();
+//        } else if (id == R.id.apple) {
+//            new Categorias(getApplicationContext(),items,recycler,"apple").execute();
+//        } else if (id == R.id.inicio){
+//            contador = 5;
+//            contadorCurrentPage = 1;
+//            new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
+//        }
+//        contador = 5;
+//        contadorCurrentPage = 1;
+//        if(item.getTitle().equals("inicio")){
+//            new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
+//        }else{
+//            new Categorias(getApplicationContext(),items,recycler,item.getTitle().toString()).execute();
+//        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }
