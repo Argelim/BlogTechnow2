@@ -28,7 +28,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import technow.com.blogtechnow.Adaptador;
 import technow.com.blogtechnow.Noticias;
 import technow.com.blogtechnow.R;
 
@@ -53,12 +52,14 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
     private Spanned spanned;
     private obtenerImagen obtenerImagen;
     private String categoria;
+    private String page;
 
-    public Categorias(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String categoria) {
+    public Categorias(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String categoria,String page) {
         this.context=context;
         this.noticias=noticias;
         this.recyclerView=recyclerView;
         this.categoria=categoria;
+        this.page=page;
     }
 
     @Override
@@ -89,7 +90,7 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
             //instanciamos el contexto SSL
             sslContext.init(null,trustManagerFactory.getTrustManagers(),null);
             //obtenemos la URL de la página con el certificado
-            url = new URL("https://www.technow.es/blog/wp-json/wp/v2/posts?filter[category_name]="+categoria);
+            url = new URL("https://www.technow.es/blog/wp-json/wp/v2/posts?filter[category_name]="+categoria+"&page="+page);
             //realizamos la comunicacion
             connection = (HttpsURLConnection) url.openConnection();
             //le pasamos el contexto SSL para que pueda comprobar el certificado
