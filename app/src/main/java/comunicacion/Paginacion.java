@@ -50,7 +50,7 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
     private RecyclerView recyclerView;
     private Spanned spanned;
     private obtenerImagen obtenerImagen;
-    private Adaptador adaptador;
+    private String contenido;
     private String pagina;
 
     public Paginacion(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String pagina) {
@@ -147,14 +147,15 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
                             break;
                         case "content":
                             obtenerImagen =new obtenerImagen(context);
-                            spanned = Html.fromHtml(leerObjeto(jsonReader),obtenerImagen,null);
+                            contenido = leerObjeto(jsonReader);
+                            spanned = Html.fromHtml(contenido,obtenerImagen,null);
                             break;
                         default:
                             jsonReader.skipValue();
                             break;
                     }
                 }
-                noticias.add(new Noticias(id, titulo, spanned, obtenerImagen.getImagenCreator()));
+                noticias.add(new Noticias(id, titulo,contenido, obtenerImagen.getImagenCreator()));
                 publishProgress();
                 jsonReader.endObject();
             }
