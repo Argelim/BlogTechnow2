@@ -53,6 +53,7 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
     private obtenerImagen obtenerImagen;
     private String categoria;
     private String page;
+    private String contenido;
 
     public Categorias(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String categoria,String page) {
         this.context=context;
@@ -149,14 +150,15 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
                             break;
                         case "content":
                             obtenerImagen =new obtenerImagen(context);
-                            spanned = Html.fromHtml(leerObjeto(jsonReader),obtenerImagen,null);
+                            contenido = leerObjeto(jsonReader);
+                            spanned = Html.fromHtml(contenido,obtenerImagen,null);
                             break;
                         default:
                             jsonReader.skipValue();
                             break;
                     }
                 }
-                noticias.add(new Noticias(id, titulo, spanned, obtenerImagen.getImagenCreator()));
+                noticias.add(new Noticias(id, titulo,contenido, obtenerImagen.getImagenCreator()));
                 Log.d(TAG,String.valueOf(noticias.size()));
                 publishProgress();
                 jsonReader.endObject();

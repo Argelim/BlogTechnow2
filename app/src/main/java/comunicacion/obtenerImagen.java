@@ -13,6 +13,8 @@ import com.squareup.picasso.RequestCreator;
 
 import java.net.URLConnection;
 
+import technow.com.blogtechnow.R;
+
 /**
  * Created by Tautvydas on 16/03/2016.
  */
@@ -41,7 +43,7 @@ public class obtenerImagen implements Html.ImageGetter {
         if(imagenCreator!=null){
             return imagenCreator;
         }else{
-            return Picasso.with(context).load("http://www.cochesdeocasion.com/images/sin_imagen_grande.jpg");
+            return Picasso.with(context).load(R.drawable.noimagen);
         }
 
     }

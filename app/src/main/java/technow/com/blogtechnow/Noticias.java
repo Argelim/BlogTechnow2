@@ -15,11 +15,15 @@ public class Noticias{
     private RequestCreator image;
     private String titulo, descripcion,id;
     private Spanned spanned;
+    private String contenido;
 
+    public String getContenido() {
+        return contenido;
+    }
 
-    public Noticias(String id, String titulo, Spanned spanned,RequestCreator image) {
+    public Noticias(String id, String titulo,String contenido,RequestCreator image) {
         this.titulo = titulo;
-        this.spanned = spanned;
+        this.contenido =contenido;
         this.id = id;
         this.image=image;
     }
