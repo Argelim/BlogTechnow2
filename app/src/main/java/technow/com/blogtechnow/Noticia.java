@@ -1,12 +1,8 @@
 package technow.com.blogtechnow;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,8 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class Noticia extends AppCompatActivity {
-    private TextView titulo,contenido;
-    private ImageView imageView;
+
     private Bundle bundle;
     private WebView vista;
     @Override
@@ -26,24 +21,15 @@ public class Noticia extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-//        titulo = (TextView) findViewById(R.id.textViewTitulo);
-//        contenido =(TextView) findViewById(R.id.textViewContenido);
-//        imageView = (ImageView) findViewById(R.id.imageViewNoticia);
         vista = (WebView) findViewById(R.id.vistaWeb);
-
+        vista.getSettings().setJavaScriptEnabled(true);
+        vista.getSettings().setDisplayZoomControls(true);
 
         bundle=getIntent().getExtras();
         if(bundle!=null){
             int id = bundle.getInt("id");
-//            titulo.setText(String.valueOf(MainActivity.getItems().get(id).getTitulo()));
-//            MainActivity.getItems().get(id).getImagen().into(imageView);
-//            contenido.setText(MainActivity.getItems().get(id).getSpanned());
-//            WebSettings webSettings = vista.getSettings();
-//            webSettings.setDefaultTextEncodingName("utf-8");
             vista.loadData(MainActivity.getItems().get(id).getContenido(), "text/html; charset=utf-8", "utf-8");
 
         }
     }
-
 }

@@ -85,14 +85,16 @@ public class MainActivity extends AppCompatActivity
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 Log.d(TAG, String.valueOf(layoutManager.findLastVisibleItemPosition()));
                 //position starts at 0
-                if (objetos[0] instanceof Paginacion) {
-                    contador += 10;
-                    contadorCurrentPage++;
-                    new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
-                } else {
-                    contador += 10;
-                    contadorCurrentPage++;
-                    new Categorias(getApplicationContext(), items, recycler, categoria, String.valueOf(contadorCurrentPage)).execute();
+                if(layoutManager.findFirstVisibleItemPosition()>=contador){
+                    if (objetos[0] instanceof Paginacion) {
+                        contador += 10;
+                        contadorCurrentPage++;
+                        new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
+                    } else {
+                        contador += 10;
+                        contadorCurrentPage++;
+                        new Categorias(getApplicationContext(), items, recycler, categoria, String.valueOf(contadorCurrentPage)).execute();
+                    }
                 }
             }
         });
@@ -132,15 +134,24 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public synchronized boolean onNavigationItemSelected(MenuItem item) {
         contador=5;
         contadorCurrentPage=1;
         items.clear();
         recycler.getAdapter().notifyDataSetChanged();
-        if(item.getTitle().toString().equals("inicio")){
+
+        if(objetos[0] instanceof Paginacion){
+            Paginacion p = (Paginacion) objetos[0];
+            p.cancel(true);
+        }else{
+            Categorias c = (Categorias) objetos[0];
+            c.cancel(true);
+        }
+        categoria =item.getTitle().toString();
+        if(categoria.equals("Ultimas noticias")){
             objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
         }else{
-            objetos[0]=new Categorias(getApplicationContext(),items,recycler,item.getTitle().toString(),String.valueOf(contadorCurrentPage)).execute();
+            objetos[0] = new Categorias(getApplicationContext(),items,recycler,categoria,String.valueOf(contadorCurrentPage)).execute();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
