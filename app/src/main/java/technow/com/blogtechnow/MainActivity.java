@@ -1,6 +1,7 @@
 package technow.com.blogtechnow;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,12 +28,11 @@ public class MainActivity extends AppCompatActivity
 
     private RecyclerView recycler;
     private RecyclerView.LayoutManager lManager;
-    private String[] cuatrocosas = {"Cuatro", "Cosas"};
+    private CollapsingToolbarLayout collapsingToolbarLayout;
     private String TAG = "LISTENER";
     private static ArrayList<Noticias> items;
     private int contador=5;
     private int contadorCurrentPage=1;
-    private ListView categorias;
     private Adaptador adaptador;
     private Object [] objetos;
     String categoria;
@@ -59,10 +59,29 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.ctlLayout);
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appBar);
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean verifica = false;
+            int scrollRange = -1;
+
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    collapsingToolbarLayout.setTitle("Blog Technow");
+                    verifica = true;
+                } else if (verifica) {
+                    collapsingToolbarLayout.setTitle("");
+                    verifica = false;
+                }
+            }
+        });
+
         items = new ArrayList<>();
-
-
-
         objetos = new Object[1];
 
         // Obtener el Recycler
