@@ -3,39 +3,44 @@ package technow.com.blogtechnow;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+
 import comunicacion.Categorias;
 import comunicacion.Paginacion;
+import comunicacion.compruebaNoticia;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private RecyclerView recycler;
+    private static RecyclerView recycler;
+    private static Object [] objetos;
+    private static ArrayList<Noticias> items;
     private RecyclerView.LayoutManager lManager;
     private CollapsingToolbarLayout collapsingToolbarLayout;
-    private String TAG = "LISTENER";
-    private static ArrayList<Noticias> items;
     private int contador=5;
     private int contadorCurrentPage=1;
     private Adaptador adaptador;
-    private Object [] objetos;
-    String categoria;
+    private String categoria;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private compruebaNoticia compruebaNoticia;
+    private Semaphore semaphore;
+    private String TAG ="estados";
+    private int posicionScrol;
 
 
     public static ArrayList<Noticias> getItems() {
@@ -46,43 +51,29 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(TAG,"create");
+        //cargamos el toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("");
 
-
+        //cargamos el Drawer, menu de la derecha
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
-
+        //recuperamos la lista de navegación y le añadimos un escuchador para que este atento en caso
+        //de que se ha clicado en alguna opcion del menu
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.ctlLayout);
+        //recuperamos el layout de la bara de navegación y le añadimos un escuchador cuando se cambie de estado
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appBar);
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            boolean verifica = false;
-            int scrollRange = -1;
-
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (scrollRange == -1) {
-                    scrollRange = appBarLayout.getTotalScrollRange();
-                }
-                if (scrollRange + verticalOffset == 0) {
-                    collapsingToolbarLayout.setTitle("Blog Technow");
-                    verifica = true;
-                } else if (verifica) {
-                    collapsingToolbarLayout.setTitle("");
-                    verifica = false;
-                }
-            }
-        });
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayoutChange());
 
         items = new ArrayList<>();
         objetos = new Object[1];
+        semaphore = new Semaphore(1);
 
         // Obtener el Recycler
         recycler = (RecyclerView) findViewById(R.id.reciclador);
@@ -91,32 +82,19 @@ public class MainActivity extends AppCompatActivity
         // Usar un administrador para LinearLayout
         lManager = new LinearLayoutManager(this);
         recycler.setLayoutManager(lManager);
-
         adaptador = new Adaptador(items, recycler);
         recycler.setAdapter(adaptador);
         //almacenamos el objeto en la primera posicion para el control de instancias
-        objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
+        objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage),semaphore).execute();
+        categoria="Ultimas noticias";
+        //agregamos un listener para que este atento para ir almacenando más noticias
+        recycler.addOnScrollListener(new ScrollListener());
 
-        recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                Log.d(TAG, String.valueOf(layoutManager.findLastVisibleItemPosition()));
-                //position starts at 0
-                if(layoutManager.findFirstVisibleItemPosition()>=contador){
-                    if (objetos[0] instanceof Paginacion) {
-                        contador += 10;
-                        contadorCurrentPage++;
-                        new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
-                    } else {
-                        contador += 10;
-                        contadorCurrentPage++;
-                        new Categorias(getApplicationContext(), items, recycler, categoria, String.valueOf(contadorCurrentPage)).execute();
-                    }
-                }
-            }
-        });
+        //obtenemos la barra de carga, se lo pasaremos al asytask que carga las noticias
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refrescar);
+        swipeRefreshLayout.setOnRefreshListener(new actualizacionMensaje(recycler));
+
+
     }
 
     @Override
@@ -151,14 +129,140 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "resume");
+        recycler.getLayoutManager().scrollToPosition(posicionScrol);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "stop");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "restart");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "Destroy");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
+
+
+    public static Object[] getObjetos() {
+        return objetos;
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public synchronized boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(MenuItem item) {
         contador=5;
         contadorCurrentPage=1;
-        items.clear();
-        recycler.getAdapter().notifyDataSetChanged();
+        reloadReciclador();
+        categoria =item.getTitle().toString();
+        if(categoria.equals("Ultimas noticias")){
+            objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage),semaphore).execute();
+        }else{
+            objetos[0] = new Categorias(getApplicationContext(),items,recycler,categoria,String.valueOf(contadorCurrentPage),semaphore).execute();
+        }
 
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    /**
+     * clase que se encarga de escuchar los cambios del scrolling del reciclador
+     */
+    private class ScrollListener  extends  RecyclerView.OnScrollListener{
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            posicionScrol =layoutManager.findFirstCompletelyVisibleItemPosition();
+            //position starts at 0
+            if (posicionScrol >= contador) {
+                if (objetos[0] instanceof Paginacion) {
+                    contador += 10;
+                    contadorCurrentPage++;
+                    new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage),semaphore).execute();
+                } else {
+                    contador += 10;
+                    contadorCurrentPage++;
+                    new Categorias(getApplicationContext(), items, recycler, categoria, String.valueOf(contadorCurrentPage),semaphore).execute();
+                }
+            }
+        }
+    }
+
+    /**
+     * clase que se encarga de cambair el estado de appBarlayout cuando cambie de estado
+     */
+    private class AppBarLayoutChange implements AppBarLayout.OnOffsetChangedListener {
+
+        private boolean verifica = false;
+        private int scrollRange = -1;
+
+        public AppBarLayoutChange() {
+            collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.ctlLayout);
+        }
+
+        @Override
+        public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+            if (scrollRange == -1) {
+                scrollRange = appBarLayout.getTotalScrollRange();
+            }
+            if (scrollRange + verticalOffset == 0) {
+                collapsingToolbarLayout.setTitle(categoria);
+                verifica = true;
+            } else if (verifica) {
+                collapsingToolbarLayout.setTitle("");
+                verifica = false;
+            }
+        }
+    }
+
+    /**
+     * clase que esta a la esucha cuando el usuario quiere actualizar las notcias
+     */
+    private class actualizacionMensaje implements SwipeRefreshLayout.OnRefreshListener {
+        private RecyclerView recyclerView;
+
+        public actualizacionMensaje(RecyclerView recyclerView) {
+            this.recyclerView = recyclerView;
+        }
+
+        @Override
+        public void onRefresh() {
+            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            //si esta en la posicion 0, es decir en la primera noticia
+            if(layoutManager.findFirstVisibleItemPosition()==0){
+                if (objetos[0] instanceof Paginacion){
+                    new compruebaNoticia(getApplicationContext(),swipeRefreshLayout,"1",recyclerView,semaphore).execute();
+                }else{
+                    new compruebaNoticia(getApplicationContext(),categoria,"1",swipeRefreshLayout,recyclerView,semaphore).execute();
+                }
+            }else{
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    }
+
+    public static void reloadReciclador(){
+        //matamos los hilos que pueden estén ejecutandose
         if(objetos[0] instanceof Paginacion){
             Paginacion p = (Paginacion) objetos[0];
             p.cancel(true);
@@ -166,16 +270,9 @@ public class MainActivity extends AppCompatActivity
             Categorias c = (Categorias) objetos[0];
             c.cancel(true);
         }
-        categoria =item.getTitle().toString();
-        if(categoria.equals("Ultimas noticias")){
-            objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage)).execute();
-        }else{
-            objetos[0] = new Categorias(getApplicationContext(),items,recycler,categoria,String.valueOf(contadorCurrentPage)).execute();
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+        items.clear();
+        recycler.getAdapter().notifyDataSetChanged();
     }
+
 
 }
