@@ -22,6 +22,7 @@ public class Noticia extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
         vista = (WebView) findViewById(R.id.vistaWeb);
         //en caso de que si hay algo en el bundle
         bundle=getIntent().getExtras();
@@ -29,7 +30,10 @@ public class Noticia extends AppCompatActivity {
             //obtenemos el id que será la posicion del array de items para mostrar la información
             int id = bundle.getInt("id");
             //cargamos los datos de la noticia con la id que nos ha pasado
-            vista.loadData(MainActivity.getItems().get(id).getContenido(), "text/html; charset=utf-8", "utf-8");
+            String contenido = MainActivity.getItems().get(id).getContenido();
+            String titulo = MainActivity.getItems().get(id).getTitulo();
+
+            vista.loadData(getHTML(titulo, contenido), "text/html; charset=utf-8", "utf-8");
             /*
             Realizamos todas las configuraciones para que se adapte a la
             pantalla del móvil la vista
@@ -39,5 +43,19 @@ public class Noticia extends AppCompatActivity {
             vista.getSettings().setLoadWithOverviewMode(true);
             vista.getSettings().setUseWideViewPort(true);
         }
+    }
+
+    private String getHTML(String titulo, String contenido){
+        String html =   "<html>" +
+                            "<head>" +
+                                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">" +
+                                "<style>img{display: inline;height: auto;max-width: 100%;}</style>" +
+                            "</head>" +
+                            "<body>" +
+                                "<h2>"+titulo+"</h2>"
+                                + contenido +
+                            "</body>" +
+                        "</html>";
+        return html;
     }
 }
