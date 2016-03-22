@@ -2,10 +2,12 @@ package comunicacion;
 
 import android.content.Context;;
 import android.os.AsyncTask;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.JsonReader;
+import android.view.View;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +22,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
@@ -52,18 +55,31 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
     private obtenerImagen obtenerImagen;
     private String contenido;
     private String pagina;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private Semaphore semaphore;
 
-    public Paginacion(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String pagina) {
+    public Paginacion(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String pagina,Semaphore semaphore) {
         this.context=context;
         this.noticias=noticias;
         this.recyclerView=recyclerView;
         this.pagina=pagina;
+        this.semaphore=semaphore;
+    }
+
+    public Paginacion(ArrayList<Noticias> noticias, Context context, RecyclerView recyclerView, String pagina, SwipeRefreshLayout swipeRefreshLayout,Semaphore semaphore) {
+        this.noticias = noticias;
+        this.context = context;
+        this.recyclerView = recyclerView;
+        this.pagina = pagina;
+        this.swipeRefreshLayout = swipeRefreshLayout;
+        this.semaphore=semaphore;
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
         boolean bandera = true;
         try {
+            semaphore.acquire();
             //obtenemos el certificado
             InputStream entrada = context.getResources().openRawResource(R.raw.ca);
             //creamos la factoria de certificados
@@ -119,6 +135,8 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
             bandera=false;
             e.printStackTrace();
         } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return bandera;
@@ -199,10 +217,13 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
     protected void onPostExecute(Boolean aBoolean) {
         if(aBoolean){
             if(recyclerView.getAdapter()!=null){
-                recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
+                recyclerView.getAdapter().notifyItemInserted(noticias.size() - 1);
                 recyclerView.getAdapter().notifyDataSetChanged();
             }
+        }if(swipeRefreshLayout!=null){
+            swipeRefreshLayout.setRefreshing(false);
         }
+        semaphore.release();
     }
 
 }
