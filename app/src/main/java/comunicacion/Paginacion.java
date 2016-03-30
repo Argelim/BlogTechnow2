@@ -39,14 +39,7 @@ import technow.com.blogtechnow.R;
  */
 public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
 
-    private HttpsURLConnection connection;
-    private URL url;
-    private String algoritmo,id,titulo;
-    private SSLContext sslContext;
-    private InputStream in;
-    private InputStreamReader rd;
-    private KeyStore keyStore;
-    private TrustManagerFactory trustManagerFactory;
+    private String id,titulo;
     private Context context;
     private String TAG="DEBUG";
     private ArrayList<Noticias> noticias;
@@ -55,8 +48,8 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
     private obtenerImagen obtenerImagen;
     private String contenido;
     private String pagina;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private Semaphore semaphore;
+    private socketSSL socketSSL;
 
     public Paginacion(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String pagina,Semaphore semaphore) {
         this.context=context;
@@ -66,80 +59,23 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
         this.semaphore=semaphore;
     }
 
-    public Paginacion(ArrayList<Noticias> noticias, Context context, RecyclerView recyclerView, String pagina, SwipeRefreshLayout swipeRefreshLayout,Semaphore semaphore) {
-        this.noticias = noticias;
-        this.context = context;
-        this.recyclerView = recyclerView;
-        this.pagina = pagina;
-        this.swipeRefreshLayout = swipeRefreshLayout;
-        this.semaphore=semaphore;
+    @Override
+    protected void onPreExecute() {
+        socketSSL = new socketSSL(pagina,context);
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        boolean bandera = true;
-        try {
-            semaphore.acquire();
-            //obtenemos el certificado
-            InputStream entrada = context.getResources().openRawResource(R.raw.ca);
-            //creamos la factoria de certificados
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-            Certificate ca;
-            //generamos el certificado con los datos leidos de la entrada
-            ca = certificateFactory.generateCertificate(entrada);
-            entrada.close();
-            //obtenemos el almacen de llaves y añadimos el certificado
-            String key = KeyStore.getDefaultType();
-            keyStore = KeyStore.getInstance(key);
-            keyStore.load(null, null);
-            keyStore.setCertificateEntry("ca", ca);
-            //obtenemos el algoritmo utilizado
-            algoritmo = KeyManagerFactory.getDefaultAlgorithm();
-            //obtenemos la factoria de certificados con el algoritmo
-            trustManagerFactory = TrustManagerFactory.getInstance(algoritmo);
-            //iniciamos el certificado con el almacen de llaves
-            trustManagerFactory.init(keyStore);
-            //obtenemos el contexto SSL
-            sslContext = SSLContext.getInstance("TLS");
-            //instanciamos el contexto SSL
-            sslContext.init(null,trustManagerFactory.getTrustManagers(),null);
-            //obtenemos la URL de la página con el certificado
-            url = new URL("https://www.technow.es/blog/wp-json/wp/v2/posts?page="+pagina);
-            //realizamos la comunicacion
-            connection = (HttpsURLConnection) url.openConnection();
-            //le pasamos el contexto SSL para que pueda comprobar el certificado
-            connection.setSSLSocketFactory(sslContext.getSocketFactory());
-            //obtenemos los flujos
-            in = connection.getInputStream();
-            rd = new InputStreamReader(in);
 
-            JsonReader jsonReader = new JsonReader(rd);
-            leerNoticias(jsonReader);
-
-            rd.close();
-            in.close();
-
-        } catch (NoSuchAlgorithmException e) {
-            bandera=false;
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            bandera=false;
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            bandera=false;
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            bandera=false;
-            e.printStackTrace();
-        } catch (IOException e) {
-            bandera=false;
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        boolean b=true;
+        if (socketSSL.comunicacion()){
+            leerNoticias(new JsonReader(socketSSL.getRd()));
+            socketSSL.cerrarSocket();
+        }else {
+            b=false;
         }
-        return bandera;
+
+        return b;
     }
 
 
@@ -220,8 +156,6 @@ public class Paginacion extends AsyncTask<Void,Integer,Boolean>{
                 recyclerView.getAdapter().notifyItemInserted(noticias.size() - 1);
                 recyclerView.getAdapter().notifyDataSetChanged();
             }
-        }if(swipeRefreshLayout!=null){
-            swipeRefreshLayout.setRefreshing(false);
         }
         semaphore.release();
     }
