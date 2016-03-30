@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.JsonReader;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import technow.com.blogtechnow.Noticias;
  */
 public class Categorias extends AsyncTask<Void,Integer,Boolean>{
 
-    private String id,titulo;
+    private String id,titulo,fecha;
     private Context context;
     private ArrayList<Noticias> noticias;
     private RecyclerView recyclerView;
@@ -66,6 +67,8 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
                 JsonReader jsonReader = new JsonReader(socketSSL.getRd());
                 leerNoticias(jsonReader);
                 socketSSL.cerrarSocket();
+            }else{
+                Toast.makeText(context, "Sin conexión", Toast.LENGTH_LONG).show();
             }
         } catch (InterruptedException e) {
             bandera=false;
@@ -102,12 +105,15 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
                             contenido = leerObjeto(jsonReader);
                             spanned = Html.fromHtml(contenido,obtenerImagen,null);
                             break;
+                        case "date":
+                            fecha=jsonReader.nextString();
+                            break;
                         default:
                             jsonReader.skipValue();
                             break;
                     }
                 }
-                noticias.add(new Noticias(id, titulo, contenido, obtenerImagen.getImagenCreator()));
+                noticias.add(new Noticias(id, titulo, contenido, obtenerImagen.getImagenCreator(),fecha));
                 publishProgress();
                 jsonReader.endObject();
             }

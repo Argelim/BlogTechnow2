@@ -8,18 +8,19 @@ import com.squareup.picasso.RequestCreator;
 public class Noticias{
 
     private RequestCreator image;
-    private String titulo, descripcion,id;
+    private String titulo,id,fecha;
     private String contenido;
 
     public String getContenido() {
         return contenido;
     }
 
-    public Noticias(String id, String titulo,String contenido,RequestCreator image) {
+    public Noticias(String id, String titulo,String contenido,RequestCreator image,String fecha) {
         this.titulo = titulo;
         this.contenido =contenido;
         this.id = id;
         this.image=image;
+        this.fecha=fecha;
     }
 
     public String getId() {
@@ -38,4 +39,7 @@ public class Noticias{
         return titulo;
     }
 
+    public String getFecha() {
+        return fecha;
+    }
 }

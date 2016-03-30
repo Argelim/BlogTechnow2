@@ -24,12 +24,12 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.AnimeViewHolder> i
     private ArrayList<Noticias> items;
     private RecyclerView recyclerView;
     private Bundle bundle;
-    private String TAG="NULL";
+    private String TAG = "NULL";
 
     @Override
     public void onClick(View v) {
         int posicion = recyclerView.getChildLayoutPosition(v);
-        Intent intent = new Intent(v.getContext(),Noticia.class);
+        Intent intent = new Intent(v.getContext(), Noticia.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         Bundle bundle = new Bundle();
         bundle.putInt("id", posicion);
@@ -40,26 +40,28 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.AnimeViewHolder> i
     public static class AnimeViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView imagen;
-        public TextView nombre;
+        public TextView nombre, fecha;
+
 
         public AnimeViewHolder(View v) {
             super(v);
             imagen = (ImageView) v.findViewById(R.id.imagen);
             nombre = (TextView) v.findViewById(R.id.nombre);
+            fecha = (TextView) v.findViewById(R.id.fecha);
         }
     }
 
-    public Adaptador(ArrayList<Noticias> items,RecyclerView recyclerView) {
+    public Adaptador(ArrayList<Noticias> items, RecyclerView recyclerView) {
         this.items = items;
-        this.recyclerView=recyclerView;
+        this.recyclerView = recyclerView;
         bundle = new Bundle();
     }
 
     @Override
     public int getItemCount() {
-        if(items!=null){
+        if (items != null) {
             return items.size();
-        }else{
+        } else {
             return 0;
         }
 
@@ -67,7 +69,7 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.AnimeViewHolder> i
 
     @Override
     public AnimeViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        final int i1=i;
+        final int i1 = i;
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.card_view, viewGroup, false);
         v.setOnClickListener(this);
@@ -76,11 +78,12 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.AnimeViewHolder> i
 
     @Override
     public void onBindViewHolder(AnimeViewHolder viewHolder, int i) {
-        if(i<items.size()){
+        if (i < items.size()) {
             //agregamos la imagen en el texto
-            Log.d(TAG,String.valueOf(items.size()));
+            Log.d(TAG, String.valueOf(items.size()));
             items.get(i).getImagen().into(viewHolder.imagen);
             viewHolder.nombre.setText(items.get(i).getTitulo());
+            viewHolder.fecha.setText(items.get(i).getFecha());
         }
     }
 }
