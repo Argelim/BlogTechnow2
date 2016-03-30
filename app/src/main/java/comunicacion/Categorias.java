@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 
+import technow.com.blogtechnow.MainActivity;
 import technow.com.blogtechnow.Noticias;
 
 /**
@@ -68,7 +69,7 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
                 leerNoticias(jsonReader);
                 socketSSL.cerrarSocket();
             }else{
-                Toast.makeText(context, "Sin conexión", Toast.LENGTH_LONG).show();
+                bandera = false;
             }
         } catch (InterruptedException e) {
             bandera=false;
@@ -164,6 +165,8 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
                 recyclerView.getAdapter().notifyItemInserted(noticias.size()-1);
                 recyclerView.getAdapter().notifyDataSetChanged();
             }
+        }else{
+            Toast.makeText(context, "Sin conexión", Toast.LENGTH_LONG).show();
         }
         semaphore.release();
     }

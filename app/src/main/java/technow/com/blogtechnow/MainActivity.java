@@ -15,9 +15,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+
 import comunicacion.Categorias;
+import comunicacion.CheckRed;
 import comunicacion.Paginacion;
 import comunicacion.compruebaNoticia;
 
@@ -26,18 +30,18 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static RecyclerView recycler;
-    private static Object [] objetos;
+    private static Object[] objetos;
     private static ArrayList<Noticias> items;
     private RecyclerView.LayoutManager lManager;
     private CollapsingToolbarLayout collapsingToolbarLayout;
-    private int contador=5;
-    private int contadorCurrentPage=1;
+    private int contador = 5;
+    private int contadorCurrentPage = 1;
     private Adaptador adaptador;
     private String categoria;
     private SwipeRefreshLayout swipeRefreshLayout;
     private compruebaNoticia compruebaNoticia;
     private Semaphore semaphore;
-    private String TAG ="estados";
+    private String TAG = "estados";
     private int posicionScrol;
 
 
@@ -49,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(TAG,"create");
+        Log.d(TAG, "create");
         //cargamos el toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,8 +87,8 @@ public class MainActivity extends AppCompatActivity
         adaptador = new Adaptador(items, recycler);
         recycler.setAdapter(adaptador);
         //almacenamos el objeto en la primera posicion para el control de instancias
-        objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage),semaphore).execute();
-        categoria="Ultimas noticias";
+        objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage), semaphore).execute();
+        categoria = "Ultimas noticias";
         //agregamos un listener para que este atento para ir almacenando más noticias
         recycler.addOnScrollListener(new ScrollListener());
 
@@ -107,7 +111,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+//        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -125,7 +129,6 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
-
 
 
     @Override
@@ -169,16 +172,26 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        contador=5;
-        contadorCurrentPage=1;
-        reloadReciclador();
-        categoria =item.getTitle().toString();
-        if(categoria.equals("Ultimas noticias")){
-            objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage),semaphore).execute();
-        }else{
-            objetos[0] = new Categorias(getApplicationContext(),items,recycler,categoria,String.valueOf(contadorCurrentPage),semaphore).execute();
+        contador = 5;
+        contadorCurrentPage = 1;
+        CheckRed red = new CheckRed(getApplicationContext());
+        red.start();
+        try {
+            red.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
+        if (red.bandera) {
+            reloadReciclador();
+            categoria = item.getTitle().toString();
+            if (categoria.equals("Ultimas noticias")) {
+                objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage), semaphore).execute();
+            } else {
+                objetos[0] = new Categorias(getApplicationContext(), items, recycler, categoria, String.valueOf(contadorCurrentPage), semaphore).execute();
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), "Sin conexión", Toast.LENGTH_LONG).show();
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -187,23 +200,23 @@ public class MainActivity extends AppCompatActivity
     /**
      * clase que se encarga de escuchar los cambios del scrolling del reciclador
      */
-    private class ScrollListener  extends  RecyclerView.OnScrollListener{
+    private class ScrollListener extends RecyclerView.OnScrollListener {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-            posicionScrol =layoutManager.findFirstCompletelyVisibleItemPosition();
+            posicionScrol = layoutManager.findFirstCompletelyVisibleItemPosition();
             Log.d("POSICION", String.valueOf(posicionScrol + "," + layoutManager.findFirstVisibleItemPosition()));
             //position starts at 0
             if (posicionScrol >= contador) {
                 if (objetos[0] instanceof Paginacion) {
                     contador += 10;
                     contadorCurrentPage++;
-                    new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage),semaphore).execute();
+                    new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage), semaphore).execute();
                 } else {
                     contador += 10;
                     contadorCurrentPage++;
-                    new Categorias(getApplicationContext(), items, recycler, categoria, String.valueOf(contadorCurrentPage),semaphore).execute();
+                    new Categorias(getApplicationContext(), items, recycler, categoria, String.valueOf(contadorCurrentPage), semaphore).execute();
                 }
             }
         }
@@ -223,8 +236,8 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-            
-            swipeRefreshLayout.setEnabled(verticalOffset==0);
+
+            swipeRefreshLayout.setEnabled(verticalOffset == 0);
 
             if (scrollRange == -1) {
                 scrollRange = appBarLayout.getTotalScrollRange();
@@ -255,24 +268,31 @@ public class MainActivity extends AppCompatActivity
         public void onRefresh() {
             LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
             //si esta en la posicion 0, es decir en la primera noticia
-            if(layoutManager.findFirstVisibleItemPosition()==0){
-                if (objetos[0] instanceof Paginacion){
-                    new compruebaNoticia(getApplicationContext(),swipeRefreshLayout,"1",recyclerView,semaphore).execute();
-                }else{
-                    new compruebaNoticia(getApplicationContext(),categoria,"1",swipeRefreshLayout,recyclerView,semaphore).execute();
+            CheckRed red = new CheckRed(getApplicationContext());
+            red.start();
+            try {
+                red.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (red.bandera) {
+                if (objetos[0] instanceof Paginacion) {
+                    new compruebaNoticia(getApplicationContext(), swipeRefreshLayout, "1", recyclerView, semaphore).execute();
+                } else {
+                    new compruebaNoticia(getApplicationContext(), categoria, "1", swipeRefreshLayout, recyclerView, semaphore).execute();
                 }
-            }else{
-                swipeRefreshLayout.setRefreshing(false);
+            } else {
+                Toast.makeText(getApplicationContext(), "Sin conexión", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    public static void reloadReciclador(){
+    public static void reloadReciclador() {
         //matamos los hilos que pueden estén ejecutandose
-        if(objetos[0] instanceof Paginacion){
+        if (objetos[0] instanceof Paginacion) {
             Paginacion p = (Paginacion) objetos[0];
             p.cancel(true);
-        }else{
+        } else {
             Categorias c = (Categorias) objetos[0];
             c.cancel(true);
         }
