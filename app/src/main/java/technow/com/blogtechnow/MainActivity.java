@@ -1,6 +1,8 @@
 package technow.com.blogtechnow;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -23,6 +25,7 @@ import java.util.concurrent.Semaphore;
 import comunicacion.Categorias;
 import comunicacion.Paginacion;
 import comunicacion.compruebaNoticia;
+import talkback.Talkback;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -41,6 +44,8 @@ public class MainActivity extends AppCompatActivity
     private Semaphore semaphore;
     private String TAG ="estados";
     private int posicionScrol;
+    private final int CHECK_TTS = 1;
+    private Talkback talkback;
 
 
     public static ArrayList<Noticias> getItems() {
@@ -94,7 +99,25 @@ public class MainActivity extends AppCompatActivity
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refrescar);
         swipeRefreshLayout.setOnRefreshListener(new actualizacionMensaje(recycler));
 
+        Intent checkTTSIntent = new Intent();
+        checkTTSIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(checkTTSIntent, CHECK_TTS);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == CHECK_TTS) {
+            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                //the user has the necessary data - create the TTS
+                talkback = new Talkback(this);
+            } else {
+                //no data - install it now
+                Intent installTTSIntent = new Intent();
+                installTTSIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installTTSIntent);
+            }
+        }
     }
 
     @Override
@@ -123,11 +146,15 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+//            for (int i = 0; i < items.size(); i++) {
+//                talkback.comunicar(items.get(i).getTitulo());
+//            }
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
 
 
     @Override
@@ -147,18 +174,25 @@ public class MainActivity extends AppCompatActivity
     protected void onRestart() {
         super.onRestart();
         Log.d(TAG, "restart");
+        Intent checkTTSIntent = new Intent();
+        checkTTSIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(checkTTSIntent, CHECK_TTS);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        talkback.shutdown();
         Log.d(TAG, "Destroy");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
+        if(talkback != null){
+            talkback.shutdown();
+        }
+        Log.d(TAG, "Pause");
     }
 
 
@@ -193,6 +227,8 @@ public class MainActivity extends AppCompatActivity
             super.onScrolled(recyclerView, dx, dy);
             LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
             posicionScrol =layoutManager.findFirstCompletelyVisibleItemPosition();
+            Log.d("POSICION", String.valueOf(posicionScrol + "," + layoutManager.findFirstVisibleItemPosition()));
+            talkback.comunicar(items.get(layoutManager.findFirstVisibleItemPosition()).getTitulo());
             //position starts at 0
             if (posicionScrol >= contador) {
                 if (objetos[0] instanceof Paginacion) {
@@ -222,6 +258,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+
             if (scrollRange == -1) {
                 scrollRange = appBarLayout.getTotalScrollRange();
             }
@@ -273,6 +310,4 @@ public class MainActivity extends AppCompatActivity
         items.clear();
         recycler.getAdapter().notifyDataSetChanged();
     }
-
-
 }
