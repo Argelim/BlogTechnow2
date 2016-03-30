@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refrescar);
         swipeRefreshLayout.setOnRefreshListener(new actualizacionMensaje(recycler));
 
-
     }
 
     @Override
@@ -222,15 +221,20 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+
+            swipeRefreshLayout.setEnabled(verticalOffset==0);
+
             if (scrollRange == -1) {
                 scrollRange = appBarLayout.getTotalScrollRange();
             }
             if (scrollRange + verticalOffset == 0) {
                 collapsingToolbarLayout.setTitle(categoria);
                 verifica = true;
+
             } else if (verifica) {
                 collapsingToolbarLayout.setTitle("");
                 verifica = false;
+
             }
         }
     }
