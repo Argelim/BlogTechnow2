@@ -10,6 +10,8 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+
+import technow.com.blogtechnow.MainActivity;
 import technow.com.blogtechnow.Noticias;
 
 
@@ -57,7 +59,6 @@ public class Paginacion extends AsyncTask<Void, Integer, Boolean> {
             leerNoticias(new JsonReader(socketSSL.getRd()));
             socketSSL.cerrarSocket();
         } else {
-            Toast.makeText(context, "Sin conexión", Toast.LENGTH_LONG).show();
             b = false;
         }
         return b;
@@ -144,6 +145,8 @@ public class Paginacion extends AsyncTask<Void, Integer, Boolean> {
                 recyclerView.getAdapter().notifyItemInserted(noticias.size() - 1);
                 recyclerView.getAdapter().notifyDataSetChanged();
             }
+        }else{
+            Toast.makeText(context, "Sin conexión", Toast.LENGTH_LONG).show();
         }
         semaphore.release();
     }
