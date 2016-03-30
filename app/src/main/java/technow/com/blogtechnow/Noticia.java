@@ -1,9 +1,13 @@
 package technow.com.blogtechnow;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.webkit.WebView;
+
+import talkback.Talkback;
 
 /**
  * clase que se encarga de mostrara las noticias en una
@@ -13,6 +17,9 @@ public class Noticia extends AppCompatActivity {
 
     private Bundle bundle;
     private WebView vista;
+    private final int CHECK_TTS = 1;
+    private Talkback talkback;
+    private String titulo, contenido;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +37,8 @@ public class Noticia extends AppCompatActivity {
             //obtenemos el id que será la posicion del array de items para mostrar la información
             int id = bundle.getInt("id");
             //cargamos los datos de la noticia con la id que nos ha pasado
-            String contenido = MainActivity.getItems().get(id).getContenido();
-            String titulo = MainActivity.getItems().get(id).getTitulo();
+            contenido = MainActivity.getItems().get(id).getContenido();
+            titulo = MainActivity.getItems().get(id).getTitulo();
 
             vista.loadData(getHTML(titulo, contenido), "text/html; charset=utf-8", "utf-8");
             /*
@@ -42,6 +49,32 @@ public class Noticia extends AppCompatActivity {
             vista.getSettings().setDisplayZoomControls(true);
             vista.getSettings().setLoadWithOverviewMode(true);
             vista.getSettings().setUseWideViewPort(true);
+
+            Intent checkTTSIntent = new Intent();
+            checkTTSIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+            startActivityForResult(checkTTSIntent, CHECK_TTS);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            talkback.comunicar(contenido);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == CHECK_TTS) {
+            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                //the user has the necessary data - create the TTS
+                talkback = new Talkback(this);
+            } else {
+                //no data - install it now
+                Intent installTTSIntent = new Intent();
+                installTTSIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installTTSIntent);
+            }
         }
     }
 
@@ -57,5 +90,11 @@ public class Noticia extends AppCompatActivity {
                             "</body>" +
                         "</html>";
         return html;
+    }
+
+    @Override
+    protected void onDestroy() {
+        talkback.shutdown();
+        super.onDestroy();
     }
 }
