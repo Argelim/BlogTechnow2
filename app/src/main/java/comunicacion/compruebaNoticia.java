@@ -59,15 +59,24 @@ public class compruebaNoticia extends AsyncTask<Void,Integer,String> {
         }
     }
 
-
+    @Override
+    protected void onPreExecute() {
+        socketSSL = new socketSSL(url,context);
+    }
 
     @Override
     protected String doInBackground(Void... params) {
-        socketSSL = new socketSSL(url,context);
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (socketSSL.comunicacion()){
             JsonReader jsonReader = new JsonReader(socketSSL.getRd());
             obtenerID(jsonReader);
             socketSSL.cerrarSocket();
+        }else{
+            Toast.makeText(context,"Sin conexión",Toast.LENGTH_LONG).show();
         }
         return this.id;
     }
@@ -88,6 +97,7 @@ public class compruebaNoticia extends AsyncTask<Void,Integer,String> {
             swipeRefreshLayout.setRefreshing(false);
         }
 
+        semaphore.release();
     }
 
     /**
