@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.concurrent.Semaphore;
 
 import comunicacion.Categorias;
@@ -184,11 +185,27 @@ public class MainActivity extends AppCompatActivity
         if (red.bandera) {
             reloadReciclador();
             categoria = item.getTitle().toString();
+            if(categoria.contains(" ")){
+                if(categoria.equals("Redes e Internet")){
+                    categoria = "redes%20internet";
+                }else if(categoria.equals("Fotografía y Video")){
+                    categoria = "fotografia%20video";
+                }else{
+                    StringTokenizer st = new StringTokenizer(categoria);
+                    String aux = "";
+                    while(st.hasMoreTokens()){
+                        aux += st.nextToken() + "%20";
+                        Log.d("TOKENS", aux);
+                    }
+                    categoria = aux;
+                }
+            }
             if (categoria.equals("Ultimas noticias")) {
                 objetos[0] = new Paginacion(getApplicationContext(), items, recycler, String.valueOf(contadorCurrentPage), semaphore).execute();
             } else {
                 objetos[0] = new Categorias(getApplicationContext(), items, recycler, categoria, String.valueOf(contadorCurrentPage), semaphore).execute();
             }
+            categoria = item.getTitle().toString();
         } else {
             Toast.makeText(getApplicationContext(), "Sin conexión", Toast.LENGTH_LONG).show();
         }
