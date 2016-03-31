@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">BlogTechnow</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open">Abrir menú navegación</string>
+    <string name="navigation_drawer_close">Cerrar menú navegación</string>
     <string name="title_activity_noticia">Noticia</string>
     <string name="action_settings">Settings</string>
 </resources>

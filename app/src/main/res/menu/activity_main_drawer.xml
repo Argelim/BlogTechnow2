@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Categorias">
+    <item android:title="Categorías">
         <menu>
             <item
                 android:id="@+id/accesibilidad"
@@ -107,7 +107,7 @@
                 android:title="Software" />
             <item
                 android:id="@+id/technowSocial"
-                android:title=" Technow Social" />
+                android:title="Technow Social" />
             <item
                 android:id="@+id/technowcloud"
                 android:title="Technowcloud" />

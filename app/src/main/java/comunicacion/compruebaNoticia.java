@@ -95,6 +95,7 @@ public class compruebaNoticia extends AsyncTask<Void, Integer, Boolean> {
         Log.d("COMPROBACION", String.valueOf(b));
         if (b) {
             if(!MainActivity.getItems().isEmpty()) {
+                Log.d("ID", String.valueOf(id + ", " + MainActivity.getItems().get(0).getId()));
                 if (id.equals(MainActivity.getItems().get(0).getId())) {
                     swipeRefreshLayout.setRefreshing(false);
                     Toast.makeText(context, "No hay noticias nuevas", Toast.LENGTH_LONG).show();
@@ -121,19 +122,19 @@ public class compruebaNoticia extends AsyncTask<Void, Integer, Boolean> {
             jsonReader.beginArray();
             if(jsonReader.hasNext()){
                 jsonReader.beginObject();
-                String nombre = jsonReader.nextName();
-                switch (nombre) {
-                    case "id":
-                        id = jsonReader.nextString();
-                        Log.d(TAG, id);
-                        break;
-                    default:
-                        jsonReader.skipValue();
-                        break;
+                while(jsonReader.hasNext()){
+                    String nombre = jsonReader.nextName();
+                    switch (nombre) {
+                        case "id":
+                            id = jsonReader.nextString();
+                            Log.d(TAG, id);
+                            break;
+                        default:
+                            jsonReader.skipValue();
+                            break;
+                    }
                 }
-                jsonReader.endObject();
             }
-            jsonReader.endArray();
         } catch (IOException e) {
             e.printStackTrace();
         }
