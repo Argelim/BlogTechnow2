@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.design.widget.NavigationView;
@@ -13,8 +14,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -44,6 +48,11 @@ public class MainActivity extends AppCompatActivity
     private Semaphore semaphore;
     private String TAG = "estados";
     private int posicionScrol;
+    private View vista;
+    private static int ANCHO;
+    private static int ALTO;
+    private static int PORCENTAJE=10;
+    private ViewGroup.LayoutParams layoutParams;
 
 
     public static ArrayList<Noticias> getItems() {
@@ -96,8 +105,30 @@ public class MainActivity extends AppCompatActivity
         //obtenemos la barra de carga, se lo pasaremos al asytask que carga las noticias
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refrescar);
         swipeRefreshLayout.setOnRefreshListener(new actualizacionMensaje(recycler));
+
+
+
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        super.onKeyDown(keyCode,event);
+
+        if(keyCode==19){
+            if(posicionScrol<=0){
+                return false;
+            }
+            posicionScrol-=1;
+            recycler.getLayoutManager().scrollToPosition(posicionScrol);
+        }else if (keyCode==20){
+            if(posicionScrol>=items.size()){
+                return false;
+            }
+            posicionScrol+=1;
+            recycler.getLayoutManager().scrollToPosition(posicionScrol);
+        }
+        return true;
+    }
 
     @Override
     public void onBackPressed() {
@@ -222,7 +253,8 @@ public class MainActivity extends AppCompatActivity
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-            posicionScrol = layoutManager.findFirstCompletelyVisibleItemPosition();
+            posicionScrol = layoutManager.findLastCompletelyVisibleItemPosition();
+
             Log.d("POSICION", String.valueOf(posicionScrol + "," + layoutManager.findFirstVisibleItemPosition()));
             //position starts at 0
             if (posicionScrol >= contador) {
