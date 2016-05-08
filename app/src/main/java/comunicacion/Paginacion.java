@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import technow.com.blogtechnow.MainActivity;
 import technow.com.blogtechnow.Noticias;
 
 
@@ -32,6 +31,14 @@ public class Paginacion extends AsyncTask<Void, Integer, Boolean> {
     private Semaphore semaphore;
     private socketSSL socketSSL;
 
+    /**
+     * Contructor que recibe
+     * @param context contexto
+     * @param noticias lista de las noticias
+     * @param recyclerView reciclador de vistas
+     * @param pagina página que queremos cargar
+     * @param semaphore control de hilos mediante semaforos
+     */
     public Paginacion(Context context, ArrayList<Noticias> noticias, RecyclerView recyclerView, String pagina, Semaphore semaphore) {
         this.context = context;
         this.noticias = noticias;
@@ -64,7 +71,10 @@ public class Paginacion extends AsyncTask<Void, Integer, Boolean> {
         return b;
     }
 
-
+    /**
+     * Método que lee el contenido JSON y lo parsea
+     * @param jsonReader contenido a leer
+     */
     public void leerNoticias(JsonReader jsonReader) {
 
         try {

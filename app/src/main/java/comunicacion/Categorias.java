@@ -1,4 +1,5 @@
 package comunicacion;
+
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
@@ -11,13 +12,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-
-import technow.com.blogtechnow.MainActivity;
 import technow.com.blogtechnow.Noticias;
 
 /**
  * clase que se encarga de realiza la comunicacion
- * con el servidor y recibir el contenido de JSON.
+ * con el servidor y recibir el contenido JSON.
  * Lo parsea y obtiene los datos que serán cargados en
  * el Objeto Noticas
  * Created by Tautvydas on 16/03/2016.
@@ -53,8 +52,12 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
         this.semaphore=semaphore;
     }
 
+    /**
+     * Realizamos la comunicacion con el socket Seguro
+     */
     @Override
     protected void onPreExecute() {
+
         socketSSL = new socketSSL(categoria,page,context);
     }
 
@@ -126,6 +129,11 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
 
     }
 
+    /**
+     * Notificamos de que hemos agregado una noticia más
+     * a la lista dinámica para que lo visualize el recyclerView
+     * @param values no lo utilizamos de momento
+     */
     @Override
     protected void onProgressUpdate(Integer... values) {
         if(recyclerView.getAdapter()!=null){
@@ -158,6 +166,11 @@ public class Categorias extends AsyncTask<Void,Integer,Boolean>{
         return content;
     }
 
+    /**
+     * Cuando termine la ejecución del hilo notificamos
+     * de la ultima insercción al recyclerView
+     * @param aBoolean de que si el resultado ha sido existoso
+     */
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         if(aBoolean){

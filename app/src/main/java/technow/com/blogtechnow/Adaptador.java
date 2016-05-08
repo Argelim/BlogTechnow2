@@ -1,22 +1,22 @@
 package technow.com.blogtechnow;
 
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import java.util.ArrayList;
-import java.util.List;
+
 
 /**
+ * Clase que genera las vista de cada noticia que hay en el
+ * ArrayList de noticias
  * Created by Technow i3 on 15/03/2016.
  */
 public class Adaptador extends RecyclerView.Adapter<Adaptador.AnimeViewHolder> implements View.OnClickListener {

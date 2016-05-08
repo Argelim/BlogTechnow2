@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.design.widget.NavigationView;
@@ -17,8 +16,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -44,15 +41,9 @@ public class MainActivity extends AppCompatActivity
     private Adaptador adaptador;
     private String categoria;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private compruebaNoticia compruebaNoticia;
     private Semaphore semaphore;
     private String TAG = "estados";
     private int posicionScrol;
-    private View vista;
-    private static int ANCHO;
-    private static int ALTO;
-    private static int PORCENTAJE=10;
-    private ViewGroup.LayoutParams layoutParams;
 
 
     public static ArrayList<Noticias> getItems() {
@@ -107,24 +98,31 @@ public class MainActivity extends AppCompatActivity
         swipeRefreshLayout.setOnRefreshListener(new actualizacionMensaje(recycler));
 
 
-
     }
 
+    /**
+     * Método que se ejecuta cuando se ha pulsado los botones si en caso
+     * de que tenga teclado, en este caso nos interesa el de arriba y hacia abajo
+     * para el paso de noticias con el talckback
+     * @param keyCode código del bóton pulsado
+     * @param event evento ejecutado
+     * @return true o false si ejecutamos la acción
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        super.onKeyDown(keyCode,event);
+        super.onKeyDown(keyCode, event);
 
-        if(keyCode==19){
-            if(posicionScrol<=0){
+        if (keyCode == 19) {
+            if (posicionScrol <= 0) {
                 return false;
             }
-            posicionScrol-=1;
+            posicionScrol -= 1;
             recycler.getLayoutManager().scrollToPosition(posicionScrol);
-        }else if (keyCode==20){
-            if(posicionScrol>=items.size()){
+        } else if (keyCode == 20) {
+            if (posicionScrol >= items.size()) {
                 return false;
             }
-            posicionScrol+=1;
+            posicionScrol += 1;
             recycler.getLayoutManager().scrollToPosition(posicionScrol);
         }
         return true;
@@ -170,31 +168,6 @@ public class MainActivity extends AppCompatActivity
         recycler.getLayoutManager().scrollToPosition(posicionScrol);
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "stop");
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d(TAG, "restart");
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        Log.d(TAG, "Destroy");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "Pause");
-    }
 
 
     public static Object[] getObjetos() {
@@ -216,15 +189,15 @@ public class MainActivity extends AppCompatActivity
         if (red.bandera) {
             reloadReciclador();
             categoria = item.getTitle().toString();
-            if(categoria.contains(" ")){
-                if(categoria.equals("Redes e Internet")){
+            if (categoria.contains(" ")) {
+                if (categoria.equals("Redes e Internet")) {
                     categoria = "redes%20internet";
-                }else if(categoria.equals("Fotografía y Video")){
+                } else if (categoria.equals("Fotografía y Video")) {
                     categoria = "fotografia%20video";
-                }else{
+                } else {
                     StringTokenizer st = new StringTokenizer(categoria);
                     String aux = "";
-                    while(st.hasMoreTokens()){
+                    while (st.hasMoreTokens()) {
                         aux += st.nextToken() + "%20";
                         Log.d("TOKENS", aux);
                     }
@@ -336,6 +309,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Método que se encarga de matar los hilos en ejecución
+     * y limpiar la lista de noticias
+     */
     public static void reloadReciclador() {
         //matamos los hilos que pueden estén ejecutandose
         if (objetos[0] instanceof Paginacion) {

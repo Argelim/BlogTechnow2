@@ -22,6 +22,8 @@ import javax.net.ssl.TrustManagerFactory;
 import technow.com.blogtechnow.R;
 
 /**
+ * Clase que se establece la comunicación mediante HTTPS para poder
+ * leer el fichero JSON
  * Created by Tautvydas on 30/03/2016.
  */
 public class socketSSL {

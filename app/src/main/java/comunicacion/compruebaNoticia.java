@@ -17,6 +17,8 @@ import java.util.concurrent.Semaphore;
 import technow.com.blogtechnow.MainActivity;
 
 /**
+ * Clase que se encarga de comprobar de que si existen noticas nuevas
+ * en la categoria que estes.
  * Created by Tautvydas on 21/03/2016.
  */
 public class compruebaNoticia extends AsyncTask<Void, Integer, Boolean> {
@@ -31,15 +33,14 @@ public class compruebaNoticia extends AsyncTask<Void, Integer, Boolean> {
     private Semaphore semaphore;
     private socketSSL socketSSL;
 
-    public compruebaNoticia(Context context){
-        this.context = context;
-        try {
-            this.url = new URL("https://www.technow.es/blog/wp-json/wp/v2/posts?page=1");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Constructor que recibe por parámetro
+     * @param context contexto
+     * @param swipeRefreshLayout componente UI que se activa al actualizar las noticias
+     * @param page página la que queremos actualizar
+     * @param recyclerView reciclador de vistas
+     * @param semaphore control de semaforo
+     */
     public compruebaNoticia(Context context, SwipeRefreshLayout swipeRefreshLayout, String page, RecyclerView recyclerView, Semaphore semaphore) {
         this.context = context;
         this.swipeRefreshLayout = swipeRefreshLayout;
@@ -52,7 +53,15 @@ public class compruebaNoticia extends AsyncTask<Void, Integer, Boolean> {
         }
     }
 
-
+    /**
+     * Constructor que recibe por parámetro
+     * @param context contexto en el que trabaja
+     * @param categoria categoria que queremos actualizar de la notica
+     * @param page página que queremos actualizar dentro de una categoria
+     * @param swipeRefreshLayout componente UI que se activa al actualizar las noticias
+     * @param recyclerView reciclador de vistas
+     * @param semaphore control de semaforo
+     */
     public compruebaNoticia(Context context, String categoria, String page, SwipeRefreshLayout swipeRefreshLayout, RecyclerView recyclerView, Semaphore semaphore) {
         this.context = context;
         this.categoria = categoria;
@@ -89,6 +98,12 @@ public class compruebaNoticia extends AsyncTask<Void, Integer, Boolean> {
         return bandera;
     }
 
+    /**
+     * Comprobamos el id de la noticia, si no hay noticias nuevas
+     * le indicamos mediante un toast al usuario, en cambio volvenmos a
+     * acualizar la información con el método reload()
+     * @param b si se pudo realizar la comunicación true si no false
+     */
     @Override
     protected void onPostExecute(Boolean b) {
         //si el id es igual entonces no necesitamos actualizar la informacion
@@ -140,6 +155,9 @@ public class compruebaNoticia extends AsyncTask<Void, Integer, Boolean> {
         }
     }
 
+    /**
+     * Método que recarga de nuevo el listado de noticias
+     */
     private void reload(){
         MainActivity.reloadReciclador();
         if (categoria == null) {

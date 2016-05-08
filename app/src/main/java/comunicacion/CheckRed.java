@@ -4,7 +4,6 @@ import android.content.Context;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -23,6 +22,8 @@ import javax.net.ssl.TrustManagerFactory;
 import technow.com.blogtechnow.R;
 
 /**
+ * Clase simple que establece la comunicacion con el servidor en un hilo
+ * para comprobar de que si esta disponible
  * Created by Technow i3 on 30/03/2016.
  */
 public class CheckRed extends Thread {
@@ -36,6 +37,10 @@ public class CheckRed extends Thread {
     private Context context;
     private URL url;
 
+    /**
+     * Constructor
+     * @param c contexto en el que trabajamos
+     */
     public CheckRed(Context c){
         this.context = c;
         try {
@@ -45,6 +50,10 @@ public class CheckRed extends Thread {
         }
     }
 
+    /**
+     * Método que realiza la comunicación con el servidor
+     * @return true si la comunicacion se pudo establecer o false en caso contrario
+     */
     public boolean  comunicacion(){
         boolean b=true;
         //obtenemos el certificado
@@ -100,6 +109,9 @@ public class CheckRed extends Thread {
         return b;
     }
 
+    /**
+     * Método que lanza el hilo para la comunicación y devuelve una bandera
+     */
     @Override
     public void run() {
         bandera = comunicacion();
